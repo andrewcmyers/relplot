@@ -92,8 +92,8 @@ structure Interval = struct
 	else (0.0, (Real.max(~a0, a1))))
 
     val floor = lift1(fn (a0, a1) =>
-        (Real.fromInt(Real.floor(a0)),
-	 Real.fromInt(Real.floor(a1)))
+        (Real.realFloor(a0),
+	 Real.realFloor(a1))
     )
 
     val times = lift2 (fn ((a0, a1), (b0, b1)) => 
@@ -141,8 +141,8 @@ structure Interval = struct
     val recip = lift1' (fn (a0, a1) => 
       if Real.sign a0 = 0 andalso Real.sign a1 = 0 then Empty else
       if a0 > 0.0 orelse a1 < 0.0 then Nonempty(1.0/a1, 1.0/a0)
-      else if a0 >= 0.0 andalso a1 > 0.0 then Nonempty(0.0, Real.posInf)
-      else if a0 < 0.0 andalso a1 < 0.0 then Nonempty(Real.negInf, 0.0)
+      else if a0 >= 0.0 andalso a1 > 0.0 then Nonempty(1.0/a1, Real.posInf)
+      else if a0 < 0.0 andalso a1 <= 0.0 then Nonempty(Real.negInf, 1.0/a0)
       else Nonempty(Real.negInf, Real.posInf))
 
     fun mod_(a,b) =
@@ -164,7 +164,21 @@ structure Interval = struct
     fun const(c:real):interval = Nonempty(c,c)
 
     val exp = lift1 (fn (a0, a1) => (Real.Math.exp(a0), Real.Math.exp(a1)))
-    val erf = lift1 (fn (a0, a1) => (Erf.erf(a0), Erf.erf(a1)))
+    val erf = lift1 (fn (a0, a1) =>
+                       let val b0 = Erf.erf(a0)
+                           val b1 = Erf.erf(a1)
+                       in
+                           if b0 < b1 then (b0, b1)
+                           else (b1, b0)
+                       end)
+
+    (* SML's tanh is broken for large x *)
+    fun tanh_ext x =
+        if x > 100.0 then 1.0
+        else if x < ~100.0 then ~1.0
+        else Math.tanh(x)
+
+    val tanh = lift1 (fn (a0, a1) => (tanh_ext(a0), tanh_ext(a1)))
 
     fun ln(i) = case i of
       Empty => Empty 

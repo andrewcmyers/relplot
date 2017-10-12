@@ -23,6 +23,7 @@ structure Eqn = struct
 	| Asin of expr
 	| Atan of expr
 	| Atan2 of expr * expr
+        | Tanh of expr
 	| Erf of expr
 	| Floor of expr
 	| Mod of expr * expr
@@ -84,6 +85,7 @@ structure Eqn = struct
     | Atan(e1) => atan(eval(e1,env))
     | Atan2(e1, e2) => atan2(eval(e1,env), eval(e2,env))
     | Sinc(e) => sinc(eval(e,env))
+    | Tanh(e) => tanh(eval(e,env))
     | Erf(e) => erf(eval(e,env))
     | Exp(e1) => exp(eval(e1,env))
     | Ln(e1) => ln(eval(e1,env))
@@ -120,7 +122,7 @@ structure Eqn = struct
 	      if must then Empty else eval(e2, env))
       end
 
-    (* check_zeros(f,x,y) is (may, must, fin) where "may" is whether
+    (* check_zeros(f,{funs, vars, x, y}) is (may, must, fin) where "may" is whether
        f _may_ take on the value zero in the x*y interval, "must" is
        whether f _must_ take on that value, and "fin" is whether the
        result is a "finite" interval. *)

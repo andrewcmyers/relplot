@@ -10,7 +10,7 @@ use CGI qw(:standard);
 
 my $system_up = 1;
 
-my $root = '@DATADIR@';
+my $datadir = '@DATADIR@';
 
 my $cr = "\r\n";
 
@@ -65,12 +65,12 @@ if (!defined($hide_axes) || $hide_axes ne 'yes') { $hide_axes = 'no'; }
 if (!defined($grid_lines) || $grid_lines ne 'yes') { $grid_lines = 'no'; }
 
 my $now = strftime "%a %b %e %H:%M:%S %Y", localtime;
-print STDERR  "opening @DATADIR@/logs/requests\r\n";
+print STDERR  "opening $datadir/logs/requests\r\n";
 
-if (-w "@DATADIR@/logs/requests") {
-    open(LOG, ">>@DATADIR@/logs/requests");
+if (-w "$datadir/logs/requests") {
+    open(LOG, ">>$datadir/logs/requests");
 } else {
-    print STDERR "Cannot open @DATADIR@/logs/requests for writing\n";
+    print STDERR "Cannot open $datadir/logs/requests for writing\n";
 }
 
 my $remote_ip_address = http('HTTP_IPREMOTEADDR');
@@ -108,7 +108,7 @@ for (my $i = 1; $i <= $numeqns; $i++) {
     push @args, $eqns[$i], $colors[$i], $lines[$i], $widths[$i];
 }
 
-chdir("@DATADIR@");
+chdir("$datadir");
 
 my $scmd = "";
 

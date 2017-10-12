@@ -10,7 +10,7 @@
         border: 1px solid #aaa;
         padding: 0.5ex;
         z-index: 3;
-        width: 120ex;
+        width: 123ex;
     }
     div#fineprint {
         font-size: 80%;
@@ -46,7 +46,7 @@
 Relplot constructs high-resolution PostScript or PDF plots of the
 solutions to equations on two variables. Unlike most other plotters, it can
 handle general equations and inequations, not just functions, and it
-can plot multiple equations at once. For more information, see
+can plot multiple equations at once and their logical combinations. For more information, see
 the <a href="faq.html">FAQ</a>.
 </p>
 
@@ -83,11 +83,11 @@ x^3 + y^3 = 3xy, &nbsp;r^2 = 9/2
 <pre id=examples style="display: blockinline">
 x^2 * y^2 = 1                        x^y = y^x 
 (r-1/2)^5 = 4yx^3 - 4xy^3            ((xy(x-y)(x+y)(x^2+y^2-4))^2 - 1) &lt; 1
-ln r = sin 4x^2 + cos 5y^2 + x/4     y = 3 * x * sinc(pi^2 / r)
+ln r = sin 4x^2 + cos 5y^2 + x/4     y = 3x sinc(pi^2 / r)
 y&gt;|x| &amp; y&lt;sqrt(exp x + exp -x - 2)   x^2 <= floor|ay|, x^2>|ay| where a=sqrt(5)
 0 = (x^2+(y-(x^2)^(1/3))^2) mod 1    d = 30, d = 20, d &lt; 10 where d = x^4+y^4
-(5x mod 1=0 || 5y mod 1=0) &amp; r&lt;2     u &lt; sin 5v, |r|&gt;2 where u=x+y, v=x-y
-f(1)=-x, f(2)=0, f(4)=-4x where f(n)=(r+cos(10th))^2-n^2
+(x mod -y)*(1/y mod .2)=0 &amp;&amp; y<0     (5x mod 1=0 || 5y mod 1=0) &amp; r&lt;2
+u&lt;sin 5v, |r|&gt;2 where u=x+y, v=x-y   f(x-1)mod 1=0,f(4)=4x where f(n)=(r+cos(10th))^2-n
 </pre>
 
 <p>Equation(s) to plot (see above for examples):</p>
@@ -284,7 +284,7 @@ function remeqn() {
 </script>
 
 <p>Got feedback?
-<a href="http://www.cs.cornell.edu/w8/~andru/cgi-perl/civs/vote.pl?id=E_22bfc4b18752ab92&akey=a73b39510a5a0721">Give suggestions or vote on proposed changes.</a>
+<a href="http://civs.cs.cornell.edu/cgi-bin/vote.pl?id=E_22bfc4b18752ab92&akey=a73b39510a5a0721">Give suggestions or vote on proposed changes.</a>
 </p>
 
 <hr>

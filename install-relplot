@@ -1,14 +1,19 @@
 #!/bin/bash
 
+CP=cp
+MKDIR=mkdir
+
 TestAndCreateDir() {
     if [ ! -d $1 ]; then
-	#echo "Directory $1 does not exist. Creating it.";
-        mkdir $1;
+	echo "Directory $1 does not exist. Creating it.";
+        $MKDIR $1;
     fi
 }
 ProcessFile() {
     echo "Rewriting $1 to $2"
-    cp "$1" "$2"
+
+    tmpfile="/tmp/install-relplot.$$"
+
     sed  -e 's|@HTMLDIR@|'$HTMLDIR'|'					      \
          -e 's|@CGIBINDIR@|'$CGIBINDIR'|'				      \
          -e 's|@CGIBINURL@|'$CGIBINURL'|'				      \
@@ -18,11 +23,20 @@ ProcessFile() {
          -e 's|@SMLDIR@|'$SMLDIR'|'					      \
          -e 's|@EPSTOPDF@|'$EPSTOPDF'|'					      \
          -e 's|@PATHEXT@|'$PATHEXT'|'					      \
-    "$1" > "$2"
+    "$1" > "$tmpfile"
+    $CP "$tmpfile" "$2"
 }
 program=relplot
 
-if test $# -ne 1
+if [ "$1" = "-n" ]
+then
+  CP=diff
+  MKDIR=echo
+  shift
+  echo "Dry run"
+fi
+
+if [ $# -ne 1 ]
 then
   echo "Usage: install-$program <settings-file>";
   exit 1;
@@ -48,16 +62,16 @@ do
 done
 for f in relplot-example.png
 do
-    cp "$f" "$HTMLDIR/$f";
+    ${CP} "$f" "$HTMLDIR/$f";
 done
-for f in plot.pl relplot.pl relplot-pdf.pl
+for f in plot.pl relplot.pl
 do
     ProcessFile "$f" "$CGIBINDIR/$f";
     chmod +x "$CGIBINDIR/$f";
 done
 for f in relplot.$ARCH timeout
 do
-    cp "$f" "$EXECDIR/$f"
+    ${CP} "$f" "$EXECDIR/$f"
 done
 	
 echo "Install completed.  Check for any errors reported above.";

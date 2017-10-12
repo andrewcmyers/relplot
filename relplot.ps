@@ -1,6 +1,6 @@
 %!PS-Adobe-2.0
 %%Creator: relplot
-%Pages: 1
+%%Pages: 1
 %%PageOrder: Ascend
 %%BoundingBox: 0 0 612 792
 %%DocumentFonts: Helvetica
@@ -71,6 +71,21 @@
 	x1 tx y0 ty lineto
 	x1 tx y1 ty lineto
 	x0 tx y1 ty lineto
+	stroke
+	thelinewidth setlinewidth
+    end
+} def
+% x0 x1 y0 y1 : draw an empty rectangle over [x0,x1] * [y0,y1]
+/frame {
+    4 dict begin
+	/y1 exch def /y0 exch def /x1 exch def /x0 exch def
+	newpath
+	0 setlinewidth
+	x0 tx y0 ty moveto
+	x1 tx y0 ty lineto
+	x1 tx y1 ty lineto
+	x0 tx y1 ty lineto
+        closepath
 	stroke
 	thelinewidth setlinewidth
     end
@@ -198,7 +213,7 @@
 		  label_offset add
 		  lly ury sub 2 div
 		} ifelse
-		rmoveto the_label show
+		rmoveto the_label showlabel
 	      } if
 	      v step add step tick_ht labels drawticks
 	  } if
@@ -207,6 +222,15 @@
       mmin ms minor_tick_ht false drawticks
       Mmin Ms major_tick_ht false drawticks
       Lmin Ls label_tick_ht true drawticks
+    end
+} def
+/showlabel {
+    1 dict begin
+      /lb exch def
+      gsave
+        lb true charpath flattenpath 3 setlinewidth 1 setgray stroke
+      grestore
+      lb show
     end
 } def
 

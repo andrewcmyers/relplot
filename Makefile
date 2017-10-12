@@ -11,5 +11,5 @@ clean:
 	rm -f $(DIRT)
 	rm -r .cm CM
 
-$(HEAPIMAGE): relplot.sml eqn.grm eqn.sml interval.sml parser.sml eqn.lex
+$(HEAPIMAGE): relplot.sml eqn.grm eqn.sml interval.sml parser.sml eqn.lex erf.sml
 	echo 'CM.make("sources.cm");' | $(SML)

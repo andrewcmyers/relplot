@@ -3,9 +3,12 @@ structure RelPlot = struct
     open Interval
     open Eqn
 
+    val debug = false
+
     fun toPS(x: real):string =
-      if x >= 0.0 then Real.fmt (StringCvt.FIX NONE) (x)
-      else "-" ^ (Real.fmt (StringCvt.FIX NONE) (Real.abs(x)))
+      if Real.compare(x, 0.0) = GREATER then Real.fmt (StringCvt.FIX NONE) (x)
+      else if Real.compare(x, 0.0) = LESS then "-" ^ (Real.fmt (StringCvt.FIX NONE) (~x))
+      else "0.0"
 
     type real_interval = real*real
 
@@ -58,6 +61,9 @@ structure RelPlot = struct
 	      funs: defn list): rendered_item list =
 	let val (x0, x1) = x
 	    val (y0, y1) = y
+            val _  = if debug then print((toPS x0) ^ " " ^ (toPS x1) ^ " "
+                                    ^ (toPS y0) ^ " " ^ (toPS y1) ^ " frame\n")
+                              else ()
 	    val env = {vars = empty_env, funs = funs, x = range x, y = range y}
 	    val (may_zero, must_zero, _) = (check_zeros(formula, env)
 	      handle EvalError(msg) => (
@@ -76,6 +82,7 @@ structure RelPlot = struct
 		                   Interval.close(y, y')
             fun near(x,y,x',y') = Interval.near(x, x') andalso
 		                  Interval.near(y, y')
+            fun left(x) = if Real.compare(x, 0.0) = EQUAL then ~0.0 else x
 
             (* Find a single zero along the line (x1,y1) - (x2,y2). z must be
              * the result of applying the function to this interval. *)
@@ -154,10 +161,10 @@ structure RelPlot = struct
                 ) else let
                     val xm = (x0 + x1) * 0.5
                     val ym = (y0 + y1) * 0.5
-                    val l1 = render(formula, (x0, xm), (y0, ym), res, curr_list, funs)
-                    val l2 = render(formula, (x0, xm), (ym, y1), res, l1, funs)
+                    val l1 = render(formula, (x0, left(xm)), (y0, left(ym)), res, curr_list, funs)
+                    val l2 = render(formula, (x0, left(xm)), (ym, y1), res, l1, funs)
                     val l3 = render(formula, (xm, x1), (ym, y1), res, l2, funs)
-                    val l4 = render(formula, (xm, x1), (y0, ym), res, l3, funs)
+                    val l4 = render(formula, (xm, x1), (y0, left(ym)), res, l3, funs)
                 in
                     l4
                 end
