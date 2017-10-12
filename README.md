@@ -19,6 +19,10 @@ as at the installation at:
 
     http://www.cs.cornell.edu/w8/~andru/relplot
 
+The script install-relplot allows setting up a new relplot web server.
+
+-----
+
 This is free, unsupported software that comes with no warranty whatsoever.
 Under no circumstances will the authors or providers of the software be
 liable for damages pertaining to this software or its use. It may be
