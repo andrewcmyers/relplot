@@ -1,8 +1,8 @@
 HEAPIMAGE = relplot.x86-darwin
 default: $(HEAPIMAGE)
 SML=$(SMLHOME)/bin/sml
-#SMLHOME=/usr/local/smlnj
-SMLHOME=$(HOME)
+SMLHOME=/usr/local/smlnj
+#SMLHOME=$(HOME)
 
 
 DIRT = eqn.grm.* eqn.lex.*
