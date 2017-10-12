@@ -3,9 +3,15 @@ relplot 1.4
 
 This is a program for generating attractive plots of the solutions
 to equations. It uses interval arithmetic to efficiently approximate
-these solutions. Output is generated as PostScript. The program is written
-largely in SML, plus some PostScript. Use "make" to build it with the SML
-executable.
+these solutions. Output is generated as PostScript, which has some
+nice properties:
+
+   - the output is resolution-independent
+   - the output is a program that can be edited by hand to change its
+     appearance or to overlay additional information.
+
+Relplot is mostly written in SML/NJ but also includes some PostScript. Use
+"make" to build it with the SML executable.
 
 The shell script "relplot" is used to generate PostScript output. "relplot-pdf"
 generates PDF output. "plot.pl" is designed to be invoked from a web interface,
