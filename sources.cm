@@ -1,0 +1,15 @@
+Group is
+
+    $/smlnj-lib.cm
+    $/ml-yacc-lib.cm
+    $/basis.cm
+
+  relplot.sml
+  interval.sml
+  parser.sml
+  main.sml
+  erf.sig
+  erf.sml
+  eqn.sml
+  eqn.grm
+  eqn.lex

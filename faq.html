@@ -1,0 +1,85 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Relplot: equation plotter</title>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <style>
+    pre#examples {
+        font-size: 80%;
+        background-color: #eee;
+        border: 1px solid #aaa;
+        padding: 0.5ex;
+        z-index: 3;
+        width: 120ex;
+    }
+    div#fineprint {
+        font-size: 80%;
+        width: 80ex;
+    }
+    div#instructions {
+        border-style: solid;
+        border-width: 1px;
+        font-size: 80%;
+        padding-right: 1em;
+        padding-left: 1ex;
+        background-color: #fed;
+        z-index: 2;
+        position: absolute;
+        right: 0;
+    }
+    .question {
+    }
+    .answer {
+    }
+    .hint { font-size: 80%; margin: 0 0 0 0}
+    input { font-family: serif; font-weight: bold; font-size: 110% }
+    span.m { font-family: serif; font-weight: bold; font-size: 110% }
+    span.mi { font-family: serif; font-style: italic; font-size: 110% }
+    #closebutton { position: absolute; right: 2px; top: 2px }
+  </style>
+  <script type="text/javascript" src="ezdom.js"></script>
+</head>
+
+<body>
+
+<div class="contents">
+
+<h1>Relplot Frequently Asked Questions</h1>
+
+<ul>
+<li><p class=question>
+How does it work?
+</p>
+<p class=answer>
+Relplot recursively subdivides the plane using interval arithmetic to test for
+the possible presence of solutions to equations. One it has divided finely enough,
+it searches for solutions along the edges of each minimum-sized square, and
+draws line segments to connect solution points it finds.
+</p>
+
+<li><p class=question>
+Can I put in TeX formulas?
+</p>
+<p class=answer>
+No, sorry. However, the syntax accepted by Relplot is very concise.
+</p>
+
+<li><p class=question>
+What is the difference between a*b and ab?
+</p>
+<p class=answer>
+Multiplication written using juxtaposition (ab) has higher precedence.
+For example, sin 2*x is the same as (sin 2) * x, whereas sin 2x is the
+same as sin(2x).
+</p>
+
+<li><p class=question>
+How can I get a copy of the source code?
+</p>
+<p class=answer>
+First, install Standard ML of New Jersey. Then, send me (Andrew Myers) an email request.
+</p>
+</ul>
+</div>
+</body>
+</html>

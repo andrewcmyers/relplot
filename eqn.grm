@@ -1,0 +1,204 @@
+open Eqn
+
+val rev = List.rev
+
+fun pow(e1, e2) =
+     case e2 of Const(c) =>
+        if (Real.abs(c - Real.fromInt(Real.trunc(c))) < 1.0e~7
+	    orelse Real.abs(c - Real.fromInt(Real.trunc(c))/c) < 1.0e~7)
+	then
+	    if c > 0.0 then Pow (e1, Real.trunc(c))
+	               else Recip(Pow (e1, Real.trunc(~c)))
+        else
+	    Exp(Times(e2, Ln(e1)))
+     | _ => Exp(Times(e2, Ln(e1)))
+
+fun neg(e) = case e of Const(c:real) => Const(~c)
+                                 | _ => Neg(e)
+%%
+
+%name EQN
+%pos int
+
+%term PLUS
+    | TIMES
+    | MOD
+    | BAR
+    | EQUALS
+    | LT
+    | LE
+    | GT
+    | GE
+    | MINUS
+    | X
+    | Y
+    | R
+    | THETA
+    | T
+    | PI
+    | E
+    | VAR of string
+    | SUPTWO
+    | SUPTHREE
+    | REAL of real
+    | DIV
+    | POW
+    | SQRT
+    | COS
+    | SIN
+    | TAN
+    | EXP
+    | LN
+    | LG
+    | ACOS
+    | ASIN
+    | ATAN
+    | ATAN2
+    | COSH
+    | SINH
+    | TANH
+    | SINC
+    | ERF
+    | FLOOR
+    | EOF
+    | LPAREN
+    | RPAREN
+    | LBRACK
+    | RBRACK
+    | LBRACE
+    | RBRACE
+    | AND
+    | OR
+    | COMMA
+    | WHERE
+    | IF
+    | THEN
+    | ELSE
+
+%nonterm
+	 Start of (formula list * defn list)
+       | Formulas of formula list
+       | Formula of formula
+       | Eqn of expr
+       | Expr of expr
+       | Exprs of expr list
+       | Unop of expr
+       | Atom of expr
+       | LFactor of expr
+       | RFactor of expr
+       | Formals of string list
+       | Defns of defn list
+       | Definitions of defn list
+       | Definition of defn
+
+%left ELSE
+%left OR
+%left AND
+%left PLUS MINUS
+%left TIMES DIV MOD
+%left LN SIN COS EXP SQRT ACOS ASIN ATAN
+%left ATAN2
+%left POW
+
+%eop EOF
+%pure
+%start Start
+%verbose
+
+%%
+
+Start : Formulas Defns	                ((Formulas, Defns))
+      | Expr Defns                      (([Equation(Plus(neg Y,Expr))], Defns))
+
+Formulas : Formula			([Formula])
+         | Formulas COMMA Formula	(Formula::Formulas)
+
+Formula : Eqn				(Equation(Eqn))
+	| LPAREN Formula RPAREN         (Formula)
+	| Formula AND Formula           (And(Formula1,Formula2))
+	| Formula OR Formula            (Or(Formula1,Formula2))
+
+Eqn   : Expr EQUALS Expr                 (Plus(Expr1, neg(Expr2)))
+      | Expr LT Expr                     (Ltz(Plus(Expr1, neg(Expr2))))
+      | Expr LE Expr                     (Ltz(Plus(Expr1, neg(Expr2))))
+      | Expr GE Expr                     (Ltz(Plus(Expr2, neg(Expr1))))
+      | Expr GT Expr                     (Ltz(Plus(Expr2, neg(Expr1))))
+
+Expr  : Expr PLUS Expr       	(Plus (Expr1, Expr2))
+      | Expr MINUS Expr      	(Plus (Expr1, neg(Expr2)))
+      | Expr TIMES Expr		(Times(Expr1, Expr2))
+      | Expr DIV Expr		(Times(Expr1, Recip(Expr2)))
+      | Expr MOD Expr           (Mod(Expr1, Expr2))
+      | IF Formula THEN Expr ELSE Expr   (Cond(Formula, Expr1, Expr2))
+      | Unop		       	(Unop)
+
+Exprs : Expr                    ([Expr])
+      | Exprs COMMA Expr        (Expr::Exprs)
+
+Unop  : MINUS Unop              (neg(Unop))
+      | BAR Expr BAR		(Abs(Expr))
+      | RFactor                 (RFactor)
+      | LFactor                 (LFactor)
+      | LFactor RFactor         (Times(LFactor, RFactor))
+      | VAR LPAREN Exprs RPAREN (Apply(VAR, rev Exprs))
+ 
+RFactor : SQRT Unop		(Sqrt(Unop))
+      | COS Unop			(Cos(Unop))
+      | SIN Unop			(Cos(Plus(Unop, Const(~Real.Math.pi/2.0))))
+      | TAN Unop     		(Times (Cos(Plus(Unop, Const(~Real.Math.pi/2.0))),
+                                       (Recip (Cos(Unop)))))
+      | EXP Unop		(Exp(Unop))
+      | ERF Unop		(Erf(Unop))
+      | ACOS Unop		(neg(Plus(Asin(Unop), Const(~Real.Math.pi/2.0))))
+      | ASIN Unop		(Asin(Unop))
+      | ATAN Unop		(Atan(Unop))
+      | ATAN2 LPAREN Expr COMMA Expr RPAREN (Atan2(Expr1, Expr2))
+      | COSH Unop                (Times(Plus(Exp(Unop), Exp(neg(Unop))), Const(0.5)))
+      | SINH Unop                (Times(Plus(Exp(Unop), neg(Exp(neg(Unop)))), Const(0.5)))
+      | TANH Unop                (Times(Plus(Exp(Unop), neg(Exp(neg(Unop)))),
+                                        Recip(Plus(Exp(Unop), Exp(neg(Unop))))))
+      | SINC Unop               (Sinc(Unop))
+      | LN Unop			(Ln(Unop))
+      | LG Unop			(Times(Ln(Unop), Recip(Ln(Const(2.0)))))
+      | FLOOR Unop              (Floor(Unop))
+      | Atom POW Unop           (pow(Atom, Unop))
+
+LFactor :
+        LFactor Atom	       	(Times(LFactor, Atom)) 
+      | Atom			(Atom)
+
+Atom  : LPAREN Expr RPAREN	(Expr)
+      | LBRACK Expr RBRACK      (Expr)
+      | LBRACE Expr RBRACE      (Expr)
+      | X			(X)
+      | Y 			(Y)
+      | R			(Sqrt(Plus(Pow(X,2), Pow(Y,2))))
+      | THETA			(Atan2(Y, X))
+      | PI			(Const(Math.pi))
+      | E			(Const(Math.e))
+      | VAR                     (Var(VAR))
+      | REAL 			(Const(REAL))
+      | Atom SUPTWO             (Pow(Atom, 2))
+      | Atom SUPTHREE           (Pow(Atom, 3))
+
+Defns:
+        WHERE Definitions        (Definitions)
+      | (* empty *)              ([])
+     
+Definitions:
+        Definition                      ([Definition])
+      | Definitions COMMA Definition    (Definition::Definitions)
+
+Definition: 
+        VAR LPAREN Formals RPAREN EQUALS Expr    (typecheck Expr Formals;
+						 { name = VAR,
+						   formals = rev Formals,
+						   body = Expr })
+      | VAR EQUALS Expr (typecheck Expr [];
+                          { name = VAR,
+                            formals = [],
+                            body = Expr })
+
+Formals:
+       VAR                    ([VAR])
+     | Formals COMMA VAR      (VAR::Formals)

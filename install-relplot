@@ -1,0 +1,63 @@
+#!/bin/bash
+
+TestAndCreateDir() {
+    if [ ! -d $1 ]; then
+	#echo "Directory $1 does not exist. Creating it.";
+        mkdir $1;
+    fi
+}
+ProcessFile() {
+    echo "Rewriting $1 to $2"
+    cp "$1" "$2"
+    sed  -e 's|@HTMLDIR@|'$HTMLDIR'|'					      \
+         -e 's|@CGIBINDIR@|'$CGIBINDIR'|'				      \
+         -e 's|@CGIBINURL@|'$CGIBINURL'|'				      \
+         -e 's|@DATADIR@|'$DATADIR'|'					      \
+         -e 's|@EXECDIR@|'$EXECDIR'|'					      \
+         -e 's|@ARCH@|'$ARCH'|'						      \
+         -e 's|@SMLDIR@|'$SMLDIR'|'					      \
+         -e 's|@EPSTOPDF@|'$EPSTOPDF'|'					      \
+         -e 's|@PATHEXT@|'$PATHEXT'|'					      \
+    "$1" > "$2"
+}
+program=relplot
+
+if test $# -ne 1
+then
+  echo "Usage: install-$program <settings-file>";
+  exit 1;
+fi
+
+. $1 || exit 1
+
+echo "Read settings file."
+
+if test -z "$HTMLDIR"
+then
+    echo "HTMLDIR undefined. $1 doesn't seem to be a settings file."
+fi
+
+TestAndCreateDir "$HTMLDIR";
+TestAndCreateDir "$CGIBINDIR";
+TestAndCreateDir "$DATADIR";
+TestAndCreateDir "$EXECDIR";
+
+for f in index.html faq.html style.css ezdom.js
+do
+    ProcessFile "$f" "$HTMLDIR/$f";
+done
+for f in relplot-example.png
+do
+    cp "$f" "$HTMLDIR/$f";
+done
+for f in plot.pl relplot.pl relplot-pdf.pl
+do
+    ProcessFile "$f" "$CGIBINDIR/$f";
+    chmod +x "$CGIBINDIR/$f";
+done
+for f in relplot.$ARCH timeout
+do
+    cp "$f" "$EXECDIR/$f"
+done
+	
+echo "Install completed.  Check for any errors reported above.";

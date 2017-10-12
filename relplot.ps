@@ -1,0 +1,319 @@
+%!PS-Adobe-2.0
+%%Creator: relplot
+%Pages: 1
+%%PageOrder: Ascend
+%%BoundingBox: 0 0 612 792
+%%DocumentFonts: Helvetica
+%%EndComments
+%%BeginSetup
+
+/width 612 def         % should agree with header above
+/height 792 def        % should agree with header above
+/border 36 def         % 1/2 inch
+/label_offset_x 6 def  % offset of labels from axes
+/label_offset_y 6 def
+/minor_tick_ht 2 def
+/major_tick_ht 3.5 def
+/label_tick_ht 5 def
+/fontsize 10 def       % point size of label font
+/uniform_scale true def
+/hide_axes false def
+/grid_lines true def
+/thelinewidth 1 def
+
+/Helvetica findfont fontsize scalefont setfont
+
+/solid { [] 0 setdash } def
+/lw { 1 dict begin /w exch def
+    w 1 gt { w thelinewidth mul } { w } ifelse
+    end
+} def
+/dashed { [2 lw 3 lw ] 0 setdash } def
+/dotted { [0.25 lw 3 lw] 0 setdash } def
+
+/firstpt {
+    4 dict begin
+	/y exch def /x exch def
+	x tx y ty moveto
+    end
+} def
+
+/pt {
+    4 dict begin
+        /y exch def /x exch def
+        x tx y ty lineto
+    end
+} def
+
+% x0 y0 x1 y1 : draw a line segment (x0,y0) - (x1,y1)
+/seg {
+    4 dict begin
+	/y1 exch def /x1 exch def /y0 exch def /x0 exch def
+	newpath
+	x0 tx y0 ty moveto
+	x1 tx y1 ty lineto
+	stroke
+    end
+} def
+% x0 x1 y0 y1 : draw a rectangle over [x0,x1] * [y0,y1]
+/box {
+    4 dict begin
+	/y1 exch def /y0 exch def /x1 exch def /x0 exch def
+	newpath
+	x0 tx y0 ty moveto
+	x1 tx y0 ty lineto
+	x1 tx y1 ty lineto
+	x0 tx y1 ty lineto
+	fill
+	newpath
+	0 setlinewidth
+	x0 tx y0 ty moveto
+	x1 tx y0 ty lineto
+	x1 tx y1 ty lineto
+	x0 tx y1 ty lineto
+	stroke
+	thelinewidth setlinewidth
+    end
+} def
+
+
+% An axis description consists of:
+%  ms, mmin, Ms, Mmin, Ls, Lmin
+%
+% *s is the spacing between items
+% *min is the location of the first item
+% m* is the minor tick items
+% M* is the major tick items
+% L* is the labeled tick items
+
+/create_axis {
+    % Reads variables mx, mn
+    % Defines ms, mmin, Ms, Mmin, Ls Lmin
+    % . -> .
+      /biggest mx mn sub 3 div def
+      /Ls 10 biggest log floor exp def
+
+      Ls 5 mul biggest lt {
+	  /ms Ls def
+	  /Ls Ls 5 mul def
+	  /Ms Ls def
+      } {
+	Ls 2 mul biggest lt {
+	  /Ms Ls def
+	  /Ls Ls 2 mul def
+	  /ms Ls 10 div def
+	} {
+	  /Ms Ls 2 div def
+	  /ms Ls 10 div def
+	} ifelse
+      } ifelse
+
+      /Lmin mn Ls div ceiling Ls mul def
+      /mmin mn ms div ceiling ms mul def
+      /Mmin mn Ms div ceiling Ms mul def
+} def
+
+/draw_axis {
+    % horizontal? min max pos label_offset
+    20 dict begin
+      /label_offset exch def
+      /pos exch def
+      /mx exch def
+      /mn exch def
+      /horizontal exch def
+
+      /txy { exch tx exch ty } def
+      /vexch { horizontal not {exch} if } def
+
+      grid_lines { 1.5 } { 0.5 } ifelse setlinewidth
+      mn mx create_axis
+      newpath
+      mn pos vexch txy moveto
+      mx pos vexch txy lineto
+      stroke
+      
+
+      /buffer (XXXXXXXXXXXXXXXXXXX) def
+      /ok { % uses: v horizontal
+         horizontal {
+	      xmid v 0 ne and
+	      xmid not v minx ne and v maxx ne and
+	    or
+	 } { 
+	      ymid v 0 ne and
+	      ymid not v miny ne and v maxy ne and
+	    or
+	 } ifelse
+      } def
+      /drawticks { 4 dict begin
+	% v step tick_ht labels
+	  /labels exch def
+	  /tick_ht exch def
+	  /step exch def
+	  /v exch def
+	  v mx le {
+              grid_lines {
+                gsave
+                0.2 setlinewidth newpath
+                horizontal {
+                    v tx maxy ty moveto
+                    v tx miny ty lineto
+                } {
+                    maxx tx v ty moveto
+                    minx tx v ty lineto
+                } ifelse
+                stroke
+                grestore
+              } {
+                newpath
+                v pos vexch txy moveto
+                0 tick_ht vexch rmoveto
+                0 tick_ht 2 mul neg vexch rlineto
+                stroke
+              } ifelse
+	      ok labels and {
+		% in making label, convert v to an int if it
+		% is one to avoid unneeded decimal points
+		/the_label v v floor v eq {cvi} if buffer cvs def
+		/w the_label stringwidth pop def
+		0 0 moveto
+		the_label false charpath flattenpath pathbbox
+		  /ury exch def
+		  /urx exch def
+		  /lly exch def
+		  /llx exch def
+		v pos vexch txy moveto
+		horizontal {
+		  w 2 div neg % x compensation = half width
+		  label_offset 0 ge
+		    { 0 }
+		    { lly ury sub }
+		    ifelse 
+		  label_offset add
+		} {
+		  label_offset 0 ge
+		    { 0 }
+		    { w neg label_offset add }
+		    ifelse 
+		  label_offset add
+		  lly ury sub 2 div
+		} ifelse
+		rmoveto the_label show
+	      } if
+	      v step add step tick_ht labels drawticks
+	  } if
+      end } def
+
+      mmin ms minor_tick_ht false drawticks
+      Mmin Ms major_tick_ht false drawticks
+      Lmin Ls label_tick_ht true drawticks
+    end
+} def
+
+/setbounds {
+    % minx maxx miny maxy
+    /maxy exch def /miny exch def /maxx exch def /minx exch def
+    /scalex width border 2 mul sub maxx minx sub div def
+    /scaley height border 2 mul sub maxy miny sub div def
+    uniform_scale {
+	scalex scaley gt {
+	    /scalex scaley def
+	} {
+	    /scaley scalex def
+	} ifelse
+    } if
+    /plotwidth maxx minx sub scalex mul def
+    /plotheight maxy miny sub scaley mul def
+    /xoffset width plotwidth sub 2 div def
+    /yoffset height plotheight sub 2 div def
+
+    /xmid minx 0 le maxx 0 gt and def
+    /ymid miny 0 le maxy 0 gt and def
+
+    hide_axes not {
+        ymid {
+            true minx maxx 0 label_offset_y neg draw_axis 
+        } {
+            true minx maxx miny label_offset_y draw_axis
+            true minx maxx maxy label_offset_y neg draw_axis
+        } ifelse
+        xmid {
+            false miny maxy 0 label_offset_x draw_axis
+        } {
+            false miny maxy minx label_offset_x draw_axis
+            false miny maxy maxx label_offset_x neg draw_axis
+        } ifelse
+    } if
+
+    0.5 setlinewidth
+} def
+
+/tx {
+    % x
+    minx sub scalex mul xoffset add
+} def
+
+/ty {
+    % y
+    miny sub scaley mul yoffset add
+} def
+
+/startcurve {
+    newpath
+} def
+
+/endcurve {
+    stroke
+} def
+
+% colors i get : the color for curve number i
+/colors [
+    [0 0 0]
+    [0 0 0.7]
+    [0 0.7 0]
+    [0.7 0 0]
+    [0.5 0.5 0]
+    [0 0.5 0.5]
+    [0.5 0 0.5]
+    [0.6 0.3 0]
+    [0 0.6 0.3]
+    [0.3 0 0.6]
+    [0.3 0.6 0]
+    [0 0.3 0.6]
+    [0.6 0 0.3]
+]
+def
+
+/lastcolor 0 def
+
+/autocolor {
+    4 dict begin
+      /lastcolor lastcolor 1 add store
+      /n colors length def
+      colors lastcolor n mod get aload pop setrgbcolor
+    end
+} def
+
+/setlw {
+    /thelinewidth exch store
+    thelinewidth setlinewidth
+} def
+
+0 setgray
+
+/errx 50 def
+/erry height 50 sub def
+/reporterror {
+    0 setgray
+    errx erry moveto
+    show
+    /erry erry fontsize 1.2 mul sub def
+} def
+
+1 setlinejoin
+1 setlinecap
+
+%%EndSetup
+
+%%Page: 1 1
+% Output of relplot.sml follows:
