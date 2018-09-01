@@ -1,10 +1,12 @@
 relplot/eqn.grm
 relplot/eqn.lex
 relplot/eqn.sml
+relplot/erf.sml
+relplot/erf.sig
 relplot/main.sml
 relplot/interval.sml
 relplot/Makefile
-relplot/README
+relplot/README.md
 relplot/parser.sml
 relplot/plot.pl
 relplot/relplot.pl
