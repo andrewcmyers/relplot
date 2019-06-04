@@ -27,11 +27,12 @@
         position: absolute;
         right: 0;
     }
-    .hint { font-size: 80%; margin: 0 0 0 0}
+    .hint { font-size: 80%; margin: 0 0 0 0 }
     input { font-family: serif; font-weight: bold; font-size: 110% }
     span.m { font-family: serif; font-weight: bold; font-size: 110% }
     span.mi { font-family: serif; font-style: italic; font-size: 110% }
     #closebutton { position: absolute; right: 2px; top: 2px }
+    button { font-size: 100%; font-weight: bold; margin: 1ex 0 1ex 0.5ex }
   </style>
   <script type="text/javascript" src="ezdom.js"></script>
 </head>
@@ -93,27 +94,21 @@ u&lt;sin 5v, |r|&gt;2 where u=x+y, v=x-y   f(x-1)mod 1=0,f(4)=4x where f(n)=(r+c
 <p>Equation(s) to plot (see above for examples):</p>
 
 <form method="POST"
-    action="@CGIBINURL@/plot.pl"
-    enctype="multipart/form-data"
-    accept-charset="UTF-8"
-    name="relplot">
+      action="@CGIBINURL@/plot.pl"
+      enctype="multipart/form-data"
+      accept-charset="UTF-8"
+      name="relplot">
 
-<div id="equations">
-<input type="hidden" name="referer" id="referer" value="none">
 <input type="hidden" name="numeqns" id="numeqns" value="1">
-<input type="hidden" name="bak1" id="bak1" value="x^4 + y^4 = 81">
-<input type="hidden" name="bak2" id="bak2" value="">
-<input type="hidden" name="bak3" id="bak3" value="">
-<input type="hidden" name="bak4" id="bak4" value="">
-<input type="hidden" name="bak5" id="bak5" value="">
-<input id="addbutton" type="button" title="add an equation" value="+"
-       onclick="addeqn()">
-<input id="rembutton" type="button" title="remove last equation" value="&ndash;"
-       onclick="remeqn()">
+<div id="equations">
+  <!-- equations appear here -->
+  <button id="addbutton" onclick="addeqn(); return false">+</button>
+  <button id="rembutton" onclick="remeqn(); return false">&minus;</button>
 
-<div class=hint><strong>Tip:</strong> Relplot allows <i>equation(s)</i> such as <tt>y=x^2</tt>,
-not just <i>formulas</i> like <tt>x^2</tt>.
-</div>
+  <div class=hint>
+    <strong>Tip:</strong> Relplot allows <i>equation(s)</i> such as <tt>y=x^2</tt>,
+    not just <i>formulas</i> like <tt>x^2</tt>.
+  </div>
 </div>
 
 
@@ -164,13 +159,13 @@ Y value of bottom:
 </form>
 <script type="text/javascript">
 
-var neqns = 0; // number of equations. Will be kept in sync with id("numeqns").value.
+var neqns = 0; // Number of equations. Kept in sync with getValue("numeqns").
 
 function id(x) {
     return document.getElementById(x);
 }
 
-id('referer').value = document.referrer;
+setValue("referrer", document.referrer);
 
 function remhelp() {
     id("instructions").style.display = 'none';
@@ -228,11 +223,37 @@ function linewidth_selector(name) {
     return ret;
 }
 
+function setValue(name, val) {
+    // alert(`remembering ${name} = ${val}`)
+    document.cookie = name + "=" + encodeURIComponent(val);
+}
+
+function readCookie() {
+    var result = new Object()
+    var a = document.cookie.split(/; */), n = a.length
+    for (var i = 0; i < n; i++) {
+        var nv = a[i].split("=", 2)
+        result[nv[0]] = decodeURIComponent(nv[1])
+    }
+    return result
+}
+ 
+function getValue(name) {
+    var result = readCookie()[name];
+    // alert("looking up value " + name + "=" + result)
+    return result;
+}
+
 function addeqn() {
     var eqns = id("equations");
     neqns++;
-    if (neqns > id("numeqns").value)
-      id("numeqns").value = neqns;
+    var numeqns_ = getValue("numeqns");
+    if (numeqns_ === undefined || neqns > numeqns_) {
+        setValue("numeqns", neqns);
+    }
+    if (neqns > id("numeqns").value) {
+        id("numeqns").value = neqns;
+    }
 
     var newinp = input({ type: "text",
 		    name: "eqn" + neqns,
@@ -244,32 +265,33 @@ function addeqn() {
     eqns.insertBefore(
        div ({id: "div" + neqns},
             newinp,
-            color_selector("color" + neqns, (neqns-1) % colors.length),
+            color_selector("color" + neqns, neqns % colors.length),
             line_selector("line" + neqns),
             linewidth_selector("lw" + neqns),
             br()),
         addbutton);
     if (neqns <= 5) {
-        var bakinp = id("bak" + neqns);
-        newinp.value = bakinp.value;
-        tie_inputs(newinp, bakinp);
-    }
-}
+        var saved = getValue("bak" + neqns);
+        if (saved != null) newinp.value = saved;
+        else if (neqns == 1) {
+            newinp.value = 'x^4 + y^4 = 27';
+        }
 
-function tie_inputs(i1, i2) {
-    i1.onchange = function () { i2.value = i1.value; }
+        newinp.onchange = function () { setValue("bak" + neqns, newinp.value); }
+    }
 }
 
 function remeqn() {
     var eqns = id("equations");
-    neqns = id("numeqns").value - 0;
     if (neqns == 1) {
-	var first = id("eqn1")[0];
+      alert("Down to last eqn")
+	var first = id("eqn1");
 	first.value = "";
 	return;
     }
     var last = id("div" + neqns);
     neqns--;
+    setValue("numeqns", neqns);
     id("numeqns").value = neqns;
 
     eqns.removeChild(last);
@@ -277,10 +299,9 @@ function remeqn() {
 
 </script>
 <script>
-    while (neqns < id("numeqns").value) {
+    while (neqns < getValue("numeqns") || neqns == 0) {
         addeqn();
     }
-    // alert('numeqns.value = ' + numeqns.value);
 </script>
 
 <p>Got feedback?
