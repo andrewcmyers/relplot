@@ -3,37 +3,6 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>Relplot: equation plotter</title>
   <link rel="stylesheet" type="text/css" href="style.css" />
-  <style>
-    pre#examples {
-        font-size: 80%;
-        background-color: #eee;
-        border: 1px solid #aaa;
-        padding: 0.5ex;
-        z-index: 3;
-        width: 123ex;
-    }
-    div#fineprint {
-        font-size: 80%;
-        width: 80ex;
-    }
-    div#instructions {
-        border-style: solid;
-        border-width: 1px;
-        font-size: 80%;
-        padding-right: 1em;
-        padding-left: 1ex;
-        background-color: #fed;
-        z-index: 2;
-        position: absolute;
-        right: 0;
-    }
-    .hint { font-size: 80%; margin: 0 0 0 0 }
-    input { font-family: serif; font-weight: bold; font-size: 110% }
-    span.m { font-family: serif; font-weight: bold; font-size: 110% }
-    span.mi { font-family: serif; font-style: italic; font-size: 110% }
-    #closebutton { position: absolute; right: 2px; top: 2px }
-    button { font-size: 100%; font-weight: bold; margin: 1ex 0 1ex 0.5ex }
-  </style>
   <script type="text/javascript" src="ezdom.js"></script>
 </head>
 
@@ -97,7 +66,8 @@ u&lt;sin 5v, |r|&gt;2 where u=x+y, v=x-y   f(x-1)mod 1=0,f(4)=4x where f(n)=(r+c
       action="@CGIBINURL@/plot.pl"
       enctype="multipart/form-data"
       accept-charset="UTF-8"
-      name="relplot">
+      id="equations_form"
+      onsubmit="saveParams(); return true">
 
 <input type="hidden" name="numeqns" id="numeqns" value="1">
 <div id="equations">
@@ -127,26 +97,28 @@ X value of right side:
 <input type="text" name="maxx" size=8 value="5.0">
 </td></tr>
 
-<tr><td>
-Y value of bottom:
+<tr><td>Y value of bottom:</td>
 <td>
 <input type="text" name="miny" size=8 value="-5.0">
 </td></tr>
 
-<tr><td>Y value of top:<td>
-<input type="text" name="maxy" size=8 value="5.0">
+<tr><td>Y value of top:</td>
+<td><input type="text" name="maxy" size=8 value="5.0">
 </td></tr>
 
-<tr><td>X/Y aspect ratio is 1:1
+<tr><td>X/Y aspect ratio is 1:1</td>
 <td><input type="checkbox" name="fixed_aspect" checked value="yes">
 </td></tr>
 
-<tr><td>Hide axes?
+<tr><td>Hide axes?</td>
 <td><input type="checkbox" name="hide_axes" value="yes">
 </td></tr>
 
-<tr><td>Show grid lines?
+<tr><td>Show grid lines?</td>
 <td><input type="checkbox" name="grid_lines" value="yes">
+</td></tr>
+<tr><td></td><td>
+  <input type=reset onclick='setTimeout(resetForm, 1); return true'/>
 </td></tr>
 
 </table>
@@ -163,6 +135,10 @@ var neqns = 0; // Number of equations. Kept in sync with getValue("numeqns").
 
 function id(x) {
     return document.getElementById(x);
+}
+
+function byName(x) {
+    return document.getElementsByName(x)[0];
 }
 
 setValue("referrer", document.referrer);
@@ -202,25 +178,24 @@ function lw_option(style) {
     ret.style.height = "0px";
     ret.style.margin = "0.5ex 0px";
     ret.style.borderTop = "solid black " + style + "px";
+    ret.style.borderBottom = "solid black " + style + "px";
     return ret;
 }
 
 function line_selector(name) {
-    var ret = select({name: name, title: "select line style"},
-                     line_option('solid'),
-                     line_option('dashed'),
-                     line_option('dotted'));
-    return ret;
+    return select({name: name, title: "select line style"},
+                  line_option('solid'),
+                  line_option('dashed'),
+                  line_option('dotted'));
 }
 
 function linewidth_selector(name) {
-    var ret = select({name: name, title: "select line width"},
-                     lw_option('0.7'),
-                     lw_option('1'),
-                     lw_option('2'),
-                     lw_option('3'),
-                     lw_option('5'));
-    return ret;
+    return select({name: name, title: "select line width"},
+                  lw_option('0.7'),
+                  lw_option('1'),
+                  lw_option('2'),
+                  lw_option('3'),
+                  lw_option('5'));
 }
 
 function setValue(name, val) {
@@ -271,20 +246,19 @@ function addeqn() {
             br()),
         addbutton);
     if (neqns <= 5) {
-        var saved = getValue("bak" + neqns);
+        var saved = getValue("eqn" + neqns);
         if (saved != null) newinp.value = saved;
         else if (neqns == 1) {
-            newinp.value = 'x^4 + y^4 = 27';
+            newinp.value = 'x^4 + y^4 = 81';
         }
 
-        newinp.onchange = function () { setValue("bak" + neqns, newinp.value); }
+        newinp.onchange = function () { setValue("eqn" + neqns, newinp.value); }
     }
 }
 
 function remeqn() {
     var eqns = id("equations");
     if (neqns == 1) {
-      alert("Down to last eqn")
 	var first = id("eqn1");
 	first.value = "";
 	return;
@@ -297,11 +271,58 @@ function remeqn() {
     eqns.removeChild(last);
 }
 
+function inputValue(n) {
+    return byName(n).value;
+}
+function setInputValue(n,v) {
+    byName(n).value = v;
+}
+
+function saveParams() {
+    for (var i = 1; i <= neqns; i++) {
+        var color = "color" + i,
+            line = "line" + i,
+            lw = "lw" + i;
+        setValue(color, inputValue(color));
+        setValue(line, inputValue(line));
+        setValue(lw, inputValue(lw));
+    }
+    ["minx", "maxx", "miny", "maxy"].forEach(n => {
+        setValue(n, inputValue(n));
+    });
+    ["fixed_aspect", "hide_axes", "grid_lines"].forEach(n => {
+        setValue(n, byName(n).checked)
+    });
+}
+
+function restoreParams() {
+    for (var i = 1; i <= neqns; i++) {
+        var color = "color" + i,
+            line = "line" + i,
+            lw = "lw" + i;
+        if (getValue(color)) setInputValue(color, getValue(color));
+        if (getValue(line)) setInputValue(line, getValue(line));
+        if (getValue(lw)) setInputValue(lw, getValue(lw));
+    }
+    ["minx", "maxx", "miny", "maxy"].forEach(n => {
+        if (getValue(n)) setInputValue(n, getValue(n))
+    });
+    [ "fixed_aspect", "hide_axes", "grid_lines" ].forEach( n =>  {
+        if (getValue(n)) {
+          byName(n).checked = getValue(n) == "true";
+        }
+    })
+}
+
+function resetForm() {
+    while (neqns > 1) remeqn();
+}
+
 </script>
 <script>
-    while (neqns < getValue("numeqns") || neqns == 0) {
+    while (neqns < getValue("numeqns") || neqns == 0)
         addeqn();
-    }
+    restoreParams();
 </script>
 
 <p>Got feedback?
