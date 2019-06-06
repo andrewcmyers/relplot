@@ -54,6 +54,7 @@ REAL = ([0-9][0-9]*("." [0-9]*)?{EXPONENT}?) | ("." [0-9][0-9]* {EXPONENT}?);
 SUPTWO = \194\178;
 SUPTHREE = \194\179;
 PI = \207\128;
+THETA = \206\184;
 VAR = [a-z];
 %%
 
@@ -121,6 +122,7 @@ VAR = [a-z];
 <INITIAL> {SUPTWO} => (Tokens.SUPTWO (!pos, !file));
 <INITIAL> {SUPTHREE} => (Tokens.SUPTHREE (!pos, !file));
 <INITIAL> {PI} => (Tokens.PI (!pos, !file));
+<INITIAL> {THETA} => (Tokens.THETA (!pos, !file));
 <INITIAL> {REAL} => (Tokens.REAL (valOf (Real.fromString yytext), !pos, !file));
 <INITIAL> {VAR} => (Tokens.VAR(yytext, !pos, !file));
 . => (error ("ignoring bad character "^yytext, !pos, !file); lex());
