@@ -1,9 +1,9 @@
-ARCH=Linux
-HTMLDIR=/home/acm22/public_html/relplot
-CGIBINDIR=/home/acm22/public_html/cgi-bin/relplot
+ARCH=x86-linux
+HTMLDIR=/var/www/people/acm22_web8/relplot
+CGIBINDIR=/var/www/people/acm22_web8/cgi-bin/relplot
 CGIBINURL=/w8/~andru/cgi-bin/relplot
 DATADIR=/home/acm22/relplot
 EXECDIR=/home/acm22/relplot
 SMLDIR=/home/acm22/sml
 EPSTOPDF=/home/acm22/bin/epstopdf.pl
-PATHEXT=:/sw/bin
+PATHEXT=
