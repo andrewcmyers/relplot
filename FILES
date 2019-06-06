@@ -1,3 +1,5 @@
+relplot/install-relplot
+relplot/index.html
 relplot/eqn.grm
 relplot/eqn.lex
 relplot/eqn.sml
@@ -10,8 +12,6 @@ relplot/README.md
 relplot/parser.sml
 relplot/plot.pl
 relplot/relplot.pl
-relplot/relplot-pdf.pl
-relplot/relplot32
 relplot/relplot.ps
 relplot/relplot.sml
 relplot/sources.cm

@@ -1,7 +1,0 @@
-#!/bin/sh
-
-cat relplot.ps
-# sml @SMLload="relplot.x86-linux" "$@"
-/cygdrive/c/sml/bin/.run/run.x86-win32.exe @SMLload="relplot.x86-win32" "$@"
-echo 'showpage'
-echo '%%EOF'

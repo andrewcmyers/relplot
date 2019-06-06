@@ -1,4 +1,4 @@
-relplot 1.4
+relplot 1.5
 -----------
 
 This is a program for generating attractive plots of the solutions

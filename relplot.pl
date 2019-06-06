@@ -1,9 +1,17 @@
 #!/bin/sh
 
-if [ -z "$EPSTOPDF" ]
+EPSTOPDF=@EPSTOPDF@
+if [ -z "$EPSTOPDF" -o ! -x "$EPSTOPDF" ]
 then
-    #EPSTOPDF=/usr/bin/epstopdf 
-    EPSTOPDF=/home/acm22/bin/epstopdf.pl
+    if [ -x /usr/bin/epstopdf ]
+        then EPSTOPDF=/usr/bin/epstopdf
+    elif [ -x /usr/local/bin/epstodf ]
+        then EPSTOPDF=/usr/local/bin/epstopdf
+    elif [ -x /home/acm22/bin/epstopdf.pl ]
+        then EPSTOPDF=/home/acm22/bin/epstopdf.pl 
+    elif [ -x `which epstopdf` ]
+        then EPSTOPDF=`which epstopdf`
+    fi
 fi
 export PATH=$PATH@PATHEXT@
 

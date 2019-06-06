@@ -5,5 +5,5 @@ CGIBINURL=/cgi-bin/relplot
 DATADIR=/Users/andru/src/relplot
 EXECDIR=/Users/andru/src/relplot
 SMLDIR=/usr/local/smlnj
-EPSTOPDF=/usr/local/texlive/2013/bin/x86_64-darwin/epstopdf
+EPSTOPDF=/usr/local/bin/epstopdf
 PATHEXT=:/usr/local/bin

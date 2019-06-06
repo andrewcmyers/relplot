@@ -15,6 +15,7 @@ fun pow(e1, e2) =
 
 fun neg(e) = case e of Const(c:real) => Const(~c)
                                  | _ => Neg(e)
+fun sin(e) = Cos(Plus(e, Const(~Real.Math.pi/2.0)))
 %%
 
 %name EQN
@@ -46,7 +47,10 @@ fun neg(e) = case e of Const(c:real) => Const(~c)
     | SQRT
     | COS
     | SIN
+    | SEC
+    | CSC
     | TAN
+    | COT
     | EXP
     | LN
     | LG
@@ -135,18 +139,26 @@ Expr  : Expr PLUS Expr       	(Plus (Expr1, Expr2))
 Exprs : Expr                    ([Expr])
       | Exprs COMMA Expr        (Expr::Exprs)
 
-Unop  : MINUS Unop              (neg(Unop))
+Unop  : MINUS Unop              (neg Unop)
       | BAR Expr BAR		(Abs(Expr))
       | RFactor                 (RFactor)
       | LFactor                 (LFactor)
       | LFactor RFactor         (Times(LFactor, RFactor))
       | VAR LPAREN Exprs RPAREN (Apply(VAR, rev Exprs))
  
-RFactor : SQRT Unop		(Sqrt(Unop))
-      | COS Unop			(Cos(Unop))
-      | SIN Unop			(Cos(Plus(Unop, Const(~Real.Math.pi/2.0))))
-      | TAN Unop     		(Times (Cos(Plus(Unop, Const(~Real.Math.pi/2.0))),
-                                       (Recip (Cos(Unop)))))
+RFactor : SQRT Unop		(Sqrt Unop)
+      | COS Unop	        (Cos Unop)
+      | COS POW REAL Unop	(Pow ((Cos Unop), round REAL))
+      | SEC Unop                (Recip (Cos Unop))
+      | SEC POW REAL Unop	(Pow (Recip (Cos Unop), round REAL))
+      | SIN Unop		(sin (Unop))
+      | SIN POW REAL Unop	(Pow (sin Unop, round REAL))
+      | CSC Unop                (Recip (sin Unop))
+      | CSC POW REAL Unop	(Pow (Recip (sin Unop), round REAL))
+      | TAN Unop     		(Times (sin Unop, Recip (Cos Unop)))
+      | TAN POW REAL Unop     	(Pow (Times (sin Unop, Recip (Cos Unop)), round REAL))
+      | COT Unop                (Times (Cos Unop, Recip (sin Unop)))
+      | COT POW REAL Unop     	(Pow (Times (Cos Unop, Recip (sin Unop)), round REAL))
       | EXP Unop		(Exp(Unop))
       | ERF Unop		(Erf(Unop))
       | ACOS Unop		(neg(Plus(Asin(Unop), Const(~Real.Math.pi/2.0))))
