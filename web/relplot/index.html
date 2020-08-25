@@ -1,0 +1,343 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Relplot: equation plotter</title>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <script type="text/javascript" src="ezdom.js"></script>
+</head>
+
+<body>
+
+<div class="contents">
+
+<h1>Relplot: a general equation plotter</h1>
+
+<p>
+Relplot constructs high-resolution PostScript or PDF plots of the
+solutions to equations on two variables. Unlike most other plotters, it can
+handle general equations and inequations, not just functions, and it
+can plot multiple equations at once and their logical combinations. For more information, see
+the <a href="faq.html">FAQ</a>.
+</p>
+
+<div id=instructions>
+<input id="closebutton" type="button" title="close help pane" value="&times;"
+       onclick="remhelp()">
+
+<h3>What can you plot?</h3>
+<ul style="padding-left: 1em; list-style-type: none">
+<li>Built-in variables: <span class=m>x y r th &theta;</span>
+<li>Constants: <span class=m>pi e 2 -.5 1.4e5 .7e01 &pi;</span> <br>&nbsp;<small>(Note: a comma cannot be used as a decimal point)</small>
+<li>Binary arithmetic ops: <span class=m>+ * &minus; / ^ mod</span>
+<li>Unary arithmetic ops: <span class=m>|</span class=m><span class=mi>x</span><span class=m>| sqrt floor<br>
+&nbsp;  exp ln lg sin cos tan sec csc cot asin acos atan atan2<br>
+&nbsp;  sinh cosh tanh sinc erf sin^2 cos^2 ...</span>
+<li>Relational operators: <span class=m>= &lt; &lt;= &gt; &gt;=</span>
+<li>Logical operators for combining formulas: <span class=m>&amp;&amp; &amp; ||</span>
+<li>Multiple equations/formulas separated by commas: <span class=m>,</span>
+<li>User-defined functions:
+<span class=mi>f</span><span class=m>(</span><span class=mi>e</span><sub>1</sub>,..., <span class=mi>e<sub>n</sub></span><span class=m>)</span><br/>&nbsp;
+<span class=mi>e</span></sub> <span class=m>where</span> <span class=mi>f</span>(<span class=mi>x</span><sub>1</sub>,...,<span class=mi>x<sub>n</sub></span>)
+= <span class=mi>e'</mi>
+<li>User-defined variables: <span class=m>a-z</span>
+</ul>
+
+<img src="relplot-example.png"><br>
+<div style="font-size: 80%; text-align:center">
+x^3 + y^3 = 3xy, &nbsp;r^2 = 9/2
+</div>
+</div>
+
+<p>Some interesting equations to try:</p>
+
+<pre id=examples style="display: blockinline">
+x^2 * y^2 = 1                        x^y = y^x 
+(r-1/2)^5 = 4yx^3 - 4xy^3            ((xy(x-y)(x+y)(x^2+y^2-4))^2 - 1) &lt; 1
+ln r = sin 4x^2 + cos 5y^2 + x/4     y = 3x sinc(pi^2 / r)
+y&gt;|x| &amp; y&lt;sqrt(exp x + exp -x - 2)   x^2 <= floor|ay|, x^2>|ay| where a=sqrt(5)
+0 = (x^2+(y-(x^2)^(1/3))^2) mod 1    d = 30+sin 90th, d=20, d&lt;10 where d = x^4+y^4
+(x mod -y)*(1/y mod .2)=0 &amp;&amp; y<0     (5x mod 1=0 || 5y mod 1=0) &amp; r&lt;2
+u&lt;sin^2 2v,|r|&gt;2 where u=x+y, v=x-y  f(x-1)mod 1=0,f(4)=4x where f(n)=(r+cos(10th))^2-n
+</pre>
+
+<p>Equation(s) to plot (see above for examples):</p>
+
+<form method="POST"
+      action="/w8/~andru/cgi-bin/relplot/plot.pl"
+      enctype="multipart/form-data"
+      accept-charset="UTF-8"
+      id="equations_form"
+      onsubmit="saveParams(); return true">
+
+<input type="hidden" name="numeqns" id="numeqns" value="1">
+<div id="equations">
+  <!-- equations appear here -->
+  <button id="addbutton" onclick="addeqn(); return false">+</button>
+  <button id="rembutton" onclick="remeqn(); return false">&minus;</button>
+
+  <div class=hint>
+    <strong>Tip:</strong> Relplot allows <i>equation(s)</i> such as <tt>y=x^2</tt>,
+    not just <i>formulas</i> like <tt>x^2</tt>.
+  </div>
+</div>
+
+
+<p>Region of the X&ndash;Y plane to show:</p>
+<blockquote>
+<table>
+<tr><td>
+X value of left side:
+<td>
+<input type="text" name="minx" size=8 value="-5.0">
+</td></tr>
+
+<tr><td>
+X value of right side:
+<td>
+<input type="text" name="maxx" size=8 value="5.0">
+</td></tr>
+
+<tr><td>Y value of bottom:</td>
+<td>
+<input type="text" name="miny" size=8 value="-5.0">
+</td></tr>
+
+<tr><td>Y value of top:</td>
+<td><input type="text" name="maxy" size=8 value="5.0">
+</td></tr>
+
+<tr><td>X/Y aspect ratio is 1:1</td>
+<td><input type="checkbox" name="fixed_aspect" checked value="yes">
+</td></tr>
+
+<tr><td>Hide axes?</td>
+<td><input type="checkbox" name="hide_axes" value="yes">
+</td></tr>
+
+<tr><td>Show grid lines?</td>
+<td><input type="checkbox" name="grid_lines" value="yes">
+</td></tr>
+<tr><td></td><td>
+  <input type=reset onclick='setTimeout(resetForm, 1); return true'/>
+</td></tr>
+
+</table>
+</blockquote>
+<p>
+<input type="submit" value="Generate PDF" name="pdf">
+<input type="submit" value="Generate PostScript" name="postscript">
+</p>
+
+</form>
+<script type="text/javascript">
+
+var neqns = 0; // Number of equations. Kept in sync with getValue("numeqns").
+
+function id(x) {
+    return document.getElementById(x);
+}
+
+function byName(x) {
+    return document.getElementsByName(x)[0];
+}
+
+setValue("referrer", document.referrer);
+
+function remhelp() {
+    id("instructions").style.display = 'none';
+}
+
+var colors = [ 'black', 'blue', 'red', 'green', 'orange', 'purple',
+               'magenta', 'cyan', 'yellow' ];
+
+function color_selector(name, i) {
+    var ret = select({name: name, title: "select line/fill color"});
+    for (ci in colors) {
+        var opt = option({value: colors[ci], defaultSelected: (i == ci)}, colors[ci]);
+        opt.style.backgroundColor = colors[ci];
+        opt.style.color = 'white';
+        ret.appendChild(opt);
+    }
+    return ret;
+}
+
+var linetypes = [ 'solid', 'dashed', 'dotted' ];
+
+function line_option(style) {
+    return option({ value: style,
+                    defaultSelected: style == 'solid',
+		    style:
+		      { height: "0px",
+		        margin: "0.5ex 0px",
+			borderTop: "2px black " + style } },
+		  style);
+}
+
+function lw_option(style) {
+    var ret = option({value: style, defaultSelected: style == '1'}, style + "pt");
+    ret.style.height = "0px";
+    ret.style.margin = "0.5ex 0px";
+    ret.style.borderTop = "solid black " + style + "px";
+    ret.style.borderBottom = "solid black " + style + "px";
+    return ret;
+}
+
+function line_selector(name) {
+    return select({name: name, title: "select line style"},
+                  line_option('solid'),
+                  line_option('dashed'),
+                  line_option('dotted'));
+}
+
+function linewidth_selector(name) {
+    return select({name: name, title: "select line width"},
+                  lw_option('0.7'),
+                  lw_option('1'),
+                  lw_option('2'),
+                  lw_option('3'),
+                  lw_option('5'));
+}
+
+function setValue(name, val) {
+    // alert(`remembering ${name} = ${val}`)
+    document.cookie = name + "=" + encodeURIComponent(val);
+}
+
+function readCookie() {
+    var result = new Object()
+    var a = document.cookie.split(/; */), n = a.length
+    for (var i = 0; i < n; i++) {
+        var nv = a[i].split("=", 2)
+        result[nv[0]] = decodeURIComponent(nv[1])
+    }
+    return result
+}
+ 
+function getValue(name) {
+    var result = readCookie()[name];
+    // alert("looking up value " + name + "=" + result)
+    return result;
+}
+
+function addeqn() {
+    var eqns = id("equations");
+    neqns++;
+    var numeqns_ = getValue("numeqns");
+    if (numeqns_ === undefined || neqns > numeqns_) {
+        setValue("numeqns", neqns);
+    }
+    if (neqns > id("numeqns").value) {
+        id("numeqns").value = neqns;
+    }
+
+    var newinp = input({ type: "text",
+		    name: "eqn" + neqns,
+		    id: "eqn" + neqns,
+		    title: "enter equation(s) here",
+		    size: 30,
+		    value: ""});
+    var addbutton = id("addbutton");
+    eqns.insertBefore(
+       div ({id: "div" + neqns},
+            newinp,
+            color_selector("color" + neqns, neqns % colors.length),
+            line_selector("line" + neqns),
+            linewidth_selector("lw" + neqns),
+            br()),
+        addbutton);
+    if (neqns <= 5) {
+        var saved = getValue("eqn" + neqns);
+        if (saved != null) newinp.value = saved;
+        else if (neqns == 1) {
+            newinp.value = 'x^4 + y^4 = 81';
+        }
+
+        newinp.onchange = function () { setValue("eqn" + neqns, newinp.value); }
+    }
+}
+
+function remeqn() {
+    var eqns = id("equations");
+    if (neqns == 1) {
+	var first = id("eqn1");
+	first.value = "";
+	return;
+    }
+    var last = id("div" + neqns);
+    neqns--;
+    setValue("numeqns", neqns);
+    id("numeqns").value = neqns;
+
+    eqns.removeChild(last);
+}
+
+function inputValue(n) {
+    return byName(n).value;
+}
+function setInputValue(n,v) {
+    byName(n).value = v;
+}
+
+function saveParams() {
+    for (var i = 1; i <= neqns; i++) {
+        var color = "color" + i,
+            line = "line" + i,
+            lw = "lw" + i;
+        setValue(color, inputValue(color));
+        setValue(line, inputValue(line));
+        setValue(lw, inputValue(lw));
+    }
+    ["minx", "maxx", "miny", "maxy"].forEach(n => {
+        setValue(n, inputValue(n));
+    });
+    ["fixed_aspect", "hide_axes", "grid_lines"].forEach(n => {
+        setValue(n, byName(n).checked)
+    });
+}
+
+function restoreParams() {
+    for (var i = 1; i <= neqns; i++) {
+        var color = "color" + i,
+            line = "line" + i,
+            lw = "lw" + i;
+        if (getValue(color)) setInputValue(color, getValue(color));
+        if (getValue(line)) setInputValue(line, getValue(line));
+        if (getValue(lw)) setInputValue(lw, getValue(lw));
+    }
+    ["minx", "maxx", "miny", "maxy"].forEach(n => {
+        if (getValue(n)) setInputValue(n, getValue(n))
+    });
+    [ "fixed_aspect", "hide_axes", "grid_lines" ].forEach( n =>  {
+        if (getValue(n)) {
+          byName(n).checked = getValue(n) == "true";
+        }
+    })
+}
+
+function resetForm() {
+    while (neqns > 1) remeqn();
+}
+
+</script>
+<script>
+    while (neqns < getValue("numeqns") || neqns == 0)
+        addeqn();
+    restoreParams();
+</script>
+
+<p>Got feedback?
+<a href="http://civs.cs.cornell.edu/cgi-bin/vote.pl?id=E_22bfc4b18752ab92&akey=a73b39510a5a0721">Give suggestions or vote on proposed changes.</a>
+</p>
+
+<hr>
+<div id="fineprint">
+Relplot was written by <a href="http://www.cs.cornell.edu/andru">Andrew
+Myers</a> at Cornell University.  It is written in SML and PostScript.  The
+source code is freely available for noncommercial use, subject to academic
+integrity constraints; please contact the author.
+</div>
+
+</div>
+</div>
+</body>
+</html>
