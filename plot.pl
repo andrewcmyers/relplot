@@ -73,13 +73,11 @@ if (-w "$datadir/logs/requests") {
     print STDERR "Cannot open $datadir/logs/requests for writing\n";
 }
 
-my $remote_ip_address = http('HTTP_IPREMOTEADDR');
-if (!defined($remote_ip_address)) {
-    $remote_ip_address = http('HTTP_REMOTE_ADDRESS');
-}
-if (!defined($remote_ip_address)) {
-    $remote_ip_address = remote_addr();
-}
+my $remote_ip_address = http('HTTP_X_REAL_IP')
+                      || http('HTTP_X_FORWARDED_FOR')
+                      || http('HTTP_IPREMOTEADDR')
+                      || http('HTTP_REMOTE_ADDRESS')
+                      || remote_addr();
 
 my $ref = param('referer');
 if (!defined($ref)) { $ref = ''; }
